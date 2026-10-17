@@ -14,17 +14,61 @@ export default function Stories() {
   const { data: stats } = useAsync(() => api.getPublicStats(), []);
   const [open, setOpen] = useState({});
   const [f, setF] = useState({ name: '', date: '', email: '', phone: '', message: '' });
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
+
+  const onPhotoChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        toast('Please select an image file (JPG, PNG, WebP).');
+        return;
+      }
+      setPhotoFile(file);
+      setPhotoPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const removePhoto = () => {
+    setPhotoFile(null);
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    setPhotoPreview(null);
+  };
+
   useEffect(() => {
     if (!stories || !hash) return;
     const id = hash.slice(1); setOpen((o) => ({ ...o, [id]: true }));
     setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 150);
   }, [stories, hash]);
+
   const submit = async (e) => {
     e.preventDefault();
-    await api.submitEnquiry({ type: 'story', name: f.name, email: f.email, phone: f.phone, subject: 'Success story' + (f.date ? ' – married ' + fmt(f.date) : ''), message: f.message });
-    setF({ name: '', date: '', email: '', phone: '', message: '' });
-    toast('Thank you! Our office will contact you before publishing your story. 🙏', 4000);
+    setSubmitting(true);
+    try {
+      await api.submitEnquiry(
+        {
+          type: 'story',
+          name: f.name,
+          date: f.date,
+          married: f.date,
+          email: f.email,
+          phone: f.phone,
+          subject: 'Success story' + (f.date ? ' – married ' + fmt(f.date) : ''),
+          message: f.message
+        },
+        photoFile
+      );
+      setF({ name: '', date: '', email: '', phone: '', message: '' });
+      removePhoto();
+      toast('Thank you! Your story and photo were received. Our office will contact you before publishing. 🙏', 5000);
+    } catch (err) {
+      toast(err.message || 'Failed to submit story. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
   return (
     <main className="page">
@@ -60,8 +104,42 @@ export default function Stories() {
               <div className="field"><label>Email <span className="rq">*</span></label><input className="input" type="email" required value={f.email} onChange={set('email')} /></div>
               <div className="field"><label>Phone</label><input className="input" type="tel" value={f.phone} onChange={set('phone')} /></div>
             </div>
+            <div className="field" style={{ marginTop: 14 }}>
+              <label>Couple / Wedding Photo <small className="muted">(Optional, recommended)</small></label>
+              {photoPreview ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '10px 14px', background: '#fdf7f8', border: '1px solid #ecc', borderRadius: 10 }}>
+                  <img src={photoPreview} alt="Preview" style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 8, border: '1px solid #d4b5bc' }} />
+                  <div style={{ flex: 1 }}>
+                    <b style={{ fontSize: 13, display: 'block', color: 'var(--wine)' }}>{photoFile?.name}</b>
+                    <small className="muted">{photoFile ? Math.round(photoFile.size / 1024) + ' KB' : ''}</small>
+                  </div>
+                  <button type="button" className="btn btn-outline btn-sm" onClick={removePhoto} style={{ color: '#b42318' }}>
+                    <i className="fa-solid fa-trash-can" /> Change
+                  </button>
+                </div>
+              ) : (
+                <label style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 10,
+                  padding: '14px 18px',
+                  border: '2px dashed #d8c2c7',
+                  borderRadius: 10,
+                  background: '#fffcfd',
+                  cursor: 'pointer',
+                  color: '#6e4f55'
+                }}>
+                  <i className="fa-solid fa-camera wine" style={{ fontSize: 20 }} />
+                  <span style={{ fontSize: 13.5 }}><b>Click to Upload Wedding Photo</b> <small className="muted">(JPG, PNG, WebP)</small></span>
+                  <input type="file" accept="image/*" onChange={onPhotoChange} style={{ display: 'none' }} />
+                </label>
+              )}
+            </div>
             <div className="field" style={{ marginTop: 14 }}><label>Your Story <span className="rq">*</span></label><textarea className="input" rows="4" required value={f.message} onChange={set('message')} placeholder="How did you meet? How did faith guide your journey?" /></div>
-            <button className="btn btn-primary" style={{ marginTop: 14 }}><i className="fa-solid fa-paper-plane" /> Submit Story</button>
+            <button className="btn btn-primary" style={{ marginTop: 14 }} disabled={submitting}>
+              <i className="fa-solid fa-paper-plane" /> {submitting ? 'Submitting Story & Photo...' : 'Submit Story'}
+            </button>
           </form>
         </section>
       </div>

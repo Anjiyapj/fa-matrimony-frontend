@@ -429,6 +429,38 @@ export const mockApi = {
   listEnquiries: guard((status = 'open') => { needAdmin(); return delay(db.enquiries.filter((e) => status === 'all' || e.status === status).sort((a, b) => ts(b.at) - ts(a.at))); }),
   updateEnquiry: guard((id, patch) => { needAdmin(); const e = db.enquiries.find((x) => x.id === id); Object.assign(e, patch); save(); return delay(e); }),
 
+  /* ---------- admin: stories ---------- */
+  listAdminStories: guard(() => { needAdmin(); return delay([...db.stories].reverse()); }),
+  createAdminStory: guard((b) => {
+    needAdmin();
+    const item = {
+      id: 'ST' + Date.now().toString().slice(-6),
+      couple: b.couple,
+      img: b.img || '/img/story1.jpg',
+      married: b.married || '',
+      parish: b.parish || '',
+      text: b.text || '',
+      story: b.story || '',
+      published: b.published !== false
+    };
+    db.stories.unshift(item);
+    save();
+    return delay(item);
+  }),
+  updateAdminStory: guard((id, patch) => {
+    needAdmin();
+    const item = db.stories.find((x) => x.id === id);
+    if (item) Object.assign(item, patch);
+    save();
+    return delay(item);
+  }),
+  deleteAdminStory: guard((id) => {
+    needAdmin();
+    db.stories = db.stories.filter((x) => x.id !== id);
+    save();
+    return delay({ ok: true, deleted: id });
+  }),
+
   /* ---------- demo only ---------- */
   resetDemo() { db = clone(SEED); save(); return delay({ ok: true }); }
 };

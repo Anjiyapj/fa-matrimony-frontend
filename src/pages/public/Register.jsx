@@ -10,7 +10,7 @@ const TITLES = ['Register Your Profile', 'Personal Details', 'Additional Details
 const PARISHES = ['Our Lady of Lourdes Cathedral, Thrissur', "St. Antony's Church, Punkunnam", "St. Sebastian's Church, Punkunnam", 'Basilica of Our Lady of Dolours', 'Other'];
 const EDU = ['B.Tech / M.Tech', 'MBBS / MD', 'M.Sc Nursing', 'M.A / M.Sc', 'MBA', 'B.Com / M.Com', 'B.Pharm', 'Other'];
 const INTERESTS = ['📖 Reading', '🎵 Music', '✈ Travel', '🤝 Volunteering', '🌿 Gardening', '🍳 Cooking', '⛪ Choir', '🏏 Sports', '🎨 Art', '📸 Photography'];
-const PAY = [['UPI', 'fa-solid fa-mobile-screen-button', 'GPay / PhonePe / Paytm / BHIM'], ['Card', 'fa-regular fa-credit-card', 'Visa, Mastercard, RuPay'], ['Net Banking', 'fa-solid fa-building-columns', 'All major Indian banks'], ['Office', 'fa-solid fa-hand-holding-heart', 'Pay at the Family Apostolate office – admin will confirm']];
+const PAY = [['Office', 'fa-solid fa-hand-holding-heart', 'Pay ₹ 500 at the Family Apostolate office – admin will confirm and activate']];
 const PHOTO_SLOTS = [['photo1', 'fa-regular fa-id-badge', 'Passport-size Photo *', 'Front facing, plain background', true], ['photo2', 'fa-solid fa-person', 'Full-length Photo *', 'Standing, full figure visible', true], ['photo3', 'fa-solid fa-camera-rotate', 'Any Other Angle *', 'Side or casual photo', true]];
 const DOC_SLOTS = [['idProof', 'fa-regular fa-id-card', 'ID Proof *', 'Aadhaar / Passport / Driving Licence', true], ['parishLetter', 'fa-solid fa-church', 'Parish Letter / Baptism Cert.', 'From your parish vicar (optional)', false], ['extra', 'fa-solid fa-plus', 'Additional Photo', 'Optional', false]];
 
@@ -35,7 +35,7 @@ export default function Register() {
   const [f, setF] = useState(INIT);
   const [files, setFiles] = useState({});
   const [ints, setInts] = useState(['📖 Reading', '✈ Travel']);
-  const [pay, setPay] = useState('UPI');
+  const [pay, setPay] = useState('Office');
   const [terms, setTerms] = useState(false);
   const [bad, setBad] = useState([]);
   const [busy, setBusy] = useState(false);
@@ -223,13 +223,13 @@ export default function Register() {
                     <div>{PAY.map(([v, ic, sub], i) => (
                       <label key={v} className={'pay-opt' + (pay === v ? ' sel' : '')} style={{ marginTop: i ? 10 : 0 }}>
                         <input type="radio" name="pay" checked={pay === v} onChange={() => setPay(v)} /><i className={ic + ' wine'} style={{ fontSize: 22 }} />
-                        <div><b>{v === 'Card' ? 'Debit / Credit Card' : v === 'Office' ? 'Pay at Family Apostolate Office' : v}</b><br /><small className="muted">{sub}</small></div>
+                        <div><b>Pay at Family Apostolate Office</b><br /><small className="muted">{sub}</small></div>
                       </label>))}</div>
                     <div>
                       <div className="summary"><b className="serif wine" style={{ fontSize: 18 }}>Order Summary</b>
                         <div><span>6 Months Membership</span><span>₹ 500.00</span></div><div><span>Validity (from approval)</span><span>{validity}</span></div>
                         <div><span>Processing fee</span><span>₹ 0.00</span></div><div className="tot"><span>Total Payable</span><span>₹ 500.00</span></div></div>
-                      <p className="muted" style={{ fontSize: 12.5, marginTop: 12 }}><i className="fa-solid fa-circle-info wine" /> The payment gateway is connected by the backend. Your profile becomes visible only after the Family Apostolate verifies your details and payment.</p>
+                      <p className="muted" style={{ fontSize: 12.5, marginTop: 12 }}><i className="fa-solid fa-circle-info wine" /> Membership fee of ₹ 500 is payable directly at the Family Apostolate office. Your profile becomes visible once the office verifies your details and documents.</p>
                     </div>
                   </div>
                 </>}
@@ -244,7 +244,7 @@ export default function Register() {
                       <ul className="check-list">
                         {[[f.name && f.email, `${f.name || '—'} • ${f.gender || '—'} • ${f.diocese || '—'}`], [f.job, `${f.eduGroup} • ${f.job || 'profession missing'}`],
                           [files.photo1 && files.photo2 && files.photo3 && files.idProof, `${['photo1', 'photo2', 'photo3'].filter((k) => files[k]).length} of 3 photos ${files.idProof ? '+ ID proof' : '(ID proof missing)'}`],
-                          [pay !== 'Office', pay === 'Office' ? 'Payment: pay ₹ 500 at the office (admin will confirm)' : `Payment of ₹ 500 via ${pay}`]].map(([ok, t], i) => (
+                          [true, 'Payment: pay ₹ 500 at the Family Apostolate office (admin will confirm)']].map(([ok, t], i) => (
                           <li key={i}><i className={'fa-solid ' + (ok ? 'fa-check' : 'fa-exclamation')} style={ok ? {} : { background: '#c2560c' }} />{t}</li>))}
                       </ul>
                     </div>
@@ -255,7 +255,7 @@ export default function Register() {
                   {step === 1 ? <label className="check"><input type="checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} /> I agree to the <Link to="/about">Terms &amp; Conditions</Link> and <Link to="/about">Privacy Policy</Link> <span className="rq">*</span></label> : <span />}
                   <div style={{ display: 'flex', gap: 12, marginLeft: 'auto' }}>
                     {step > 1 && <button type="button" className="btn btn-outline" onClick={() => go(step - 1)}><i className="fa-solid fa-arrow-left" /> Back</button>}
-                    {step < 6 ? <button type="button" className="btn btn-primary" onClick={next} style={{ padding: '12px 28px' }}>{step === 5 ? 'Pay ₹ 500 & Continue' : 'Proceed to Next Step'} <i className="fa-solid fa-arrow-right" /></button>
+                    {step < 6 ? <button type="button" className="btn btn-primary" onClick={next} style={{ padding: '12px 28px' }}>{step === 5 ? 'Continue to Review' : 'Proceed to Next Step'} <i className="fa-solid fa-arrow-right" /></button>
                       : <button type="button" className="btn btn-primary" onClick={submit} disabled={busy} style={{ padding: '12px 28px' }}>{busy ? 'Submitting…' : 'Submit for Verification'} <i className="fa-solid fa-paper-plane" /></button>}
                   </div>
                 </div>

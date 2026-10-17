@@ -31,7 +31,14 @@ export default function Dashboard() {
       </div>
 
       <section className="panel" style={{ marginBottom: 18 }}>
-        <div className="panel-h"><h2><i className="fa-solid fa-list-check" />Needs Your Attention</h2></div>
+        <div className="panel-h">
+          <h2><i className="fa-solid fa-list-check" />Needs Your Attention</h2>
+          <div className="tools">
+            <Link className="btn btn-outline btn-sm" to="/admin/stories">
+              <i className="fa-solid fa-heart wine" /> Success Stories ({s.totalStories || 0})
+            </Link>
+          </div>
+        </div>
         <div className="queue-links q4">
           <Link to="/admin/members?status=pending"><span className="ico"><i className="fa-solid fa-user-check" /></span><div><b>{c.pending || 0}</b><span className="t">Registrations to verify</span></div></Link>
           <Link to="/admin/holds"><span className="ico"><i className="fa-solid fa-circle-pause" /></span><div><b>{s.holdRequests}</b><span className="t">Hold requests</span></div></Link>

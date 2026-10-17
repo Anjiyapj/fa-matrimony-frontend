@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../../api';
 import { useAsync } from '../../lib/useAsync';
 import { useToast } from '../../context/ToastContext';
@@ -22,6 +23,7 @@ export default function Enquiries() {
           <div><b>{x.name}</b> <span className={'pill ' + (x.type === 'story' ? 's-married' : 's-pending')} style={{ marginLeft: 6 }}>{x.type === 'story' ? 'Success story' : x.subject || 'Enquiry'}</span>
             <p>{x.message}</p><small className="muted">{x.email}{x.phone ? ' • ' + x.phone : ''} • {fmt(x.at)} {fmtTime(x.at)}{x.memberId ? ' • member ' + x.memberId : ''}</small></div>
           <div className="row-acts">
+            {x.type === 'story' && <Link className="ibtn" title="Manage in Success Stories" to="/admin/stories"><i className="fa-solid fa-heart wine" /></Link>}
             {x.email && <a className="ibtn" title="Reply by email" href={`mailto:${x.email}?subject=${encodeURIComponent('Re: ' + (x.subject || 'Your enquiry'))}`}><i className="fa-solid fa-reply" /></a>}
             <button className={'ibtn' + (x.status === 'open' ? ' ok' : '')} title={x.status === 'open' ? 'Mark resolved' : 'Reopen'} onClick={() => toggle(x)}><i className={'fa-solid ' + (x.status === 'open' ? 'fa-check' : 'fa-rotate-left')} /></button>
           </div>

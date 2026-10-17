@@ -26,6 +26,7 @@ import Holds from './pages/admin/Holds';
 import Married from './pages/admin/Married';
 import Reports from './pages/admin/Reports';
 import Enquiries from './pages/admin/Enquiries';
+import AdminStories from './pages/admin/Stories';
 
 function ScrollTop() {
   const { pathname } = useLocation();
@@ -67,6 +68,7 @@ export default function App() {
           <Route path="married" element={<Married />} />
           <Route path="reports" element={<Reports />} />
           <Route path="enquiries" element={<Enquiries />} />
+          <Route path="stories" element={<AdminStories />} />
           <Route path="*" element={<Navigate to="/admin" replace />} />
         </Route>
       </Routes>

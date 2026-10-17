@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { USE_MOCK } from '../../api';
 import { ErrorBox, Notice } from '../../components/ui';
 
-const DEMO = [['member', 'Member (groom)', 'joseph@demo.com', 'joseph123'], ['member', 'Member (bride)', 'aleena@demo.com', 'aleena123'], ['member', 'On-hold member', 'sanju@demo.com', 'sanju123'], ['member', 'Pending member', 'maria@demo.com', 'maria123'], ['admin', 'Admin', 'admin', 'admin@123']];
+const DEMO = [['member', 'Member (groom)', 'joseph@demo.com', 'joseph123'], ['member', 'Member (bride)', 'aleena@demo.com', 'aleena123'], ['member', 'On-hold member', 'sanju@demo.com', 'sanju123'], ['member', 'Pending member', 'maria@demo.com', 'maria123'], ['admin', 'Admin', 'jcs@jecc.ac.in', '123456']];
 
 export default function Login() {
   const [sp] = useSearchParams();

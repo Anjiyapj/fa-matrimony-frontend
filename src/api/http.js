@@ -53,7 +53,20 @@ export const httpApi = {
   getArticles: () => get('/articles'),
   getArticle: (id) => get(`/articles/${id}`),
   getStories: () => get('/stories'),
-  submitEnquiry: (b) => post('/enquiries', b),
+  submitEnquiry: (b, photoFile) => {
+    if (photoFile) {
+      const fd = new FormData();
+      Object.entries(b).forEach(([k, v]) => { if (v !== undefined && v !== null) fd.append(k, v); });
+      fd.append('photo', photoFile);
+      return request('POST', '/enquiries', undefined, { form: fd });
+    }
+    return post('/enquiries', b);
+  },
+  uploadPhoto: (file) => {
+    const fd = new FormData();
+    fd.append('photo', file);
+    return request('POST', '/upload/photo', undefined, { form: fd });
+  },
   register: (fields, files) => request('POST', '/members/register', undefined, { form: multipart(fields, files) }),
 
   // member – own account
@@ -99,5 +112,9 @@ export const httpApi = {
   trend: (months) => get('/admin/reports/trend', { months }),
   listEnquiries: (status) => get('/admin/enquiries', { status }),
   updateEnquiry: (id, b) => patch(`/admin/enquiries/${id}`, b),
+  listAdminStories: () => get('/admin/stories'),
+  createAdminStory: (b) => post('/admin/stories', b),
+  updateAdminStory: (id, b) => patch(`/admin/stories/${id}`, b),
+  deleteAdminStory: (id) => del(`/admin/stories/${id}`),
   resetDemo: () => Promise.reject(new ApiError('Reset is only available in mock mode.'))
 };

@@ -85,7 +85,19 @@ export default function Verify() {
           <div className="section-band" style={{ marginTop: 16 }}>Identity Proof</div>
           <div className="idcard"><div className="doc"><i className="fa-regular fa-id-card" /></div>
             <div><b>{m.idProof?.type || 'ID proof'}</b> <span className="muted">• {m.idProof?.file || '—'}</span><p className="muted" style={{ fontSize: 13, margin: '4px 0 8px' }}>Check that the name and date of birth match the form.</p>
-              <button className="btn btn-outline btn-sm" onClick={() => toast('Document viewer – the backend serves the uploaded file here')}><i className="fa-regular fa-eye" /> View document</button>
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                onClick={() => {
+                  if (m.idProof?.url) {
+                    window.open(m.idProof.url, '_blank');
+                  } else {
+                    toast('No document file uploaded');
+                  }
+                }}
+              >
+                <i className="fa-regular fa-eye" /> View document
+              </button>
               <label className="check" style={{ display: 'inline-flex', marginLeft: 14, fontSize: 13 }}><input type="checkbox" checked={!!checks.id} onChange={(e) => { setChecks({ ...checks, id: e.target.checked }); api.setIdVerified(m.id, e.target.checked); }} /> ID verified</label></div></div>
         </section>
       </div>

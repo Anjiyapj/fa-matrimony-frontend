@@ -14,12 +14,13 @@ export default function Reports() {
   const { data: trend } = useAsync(() => api.trend(7), []);
   const label = monthLabel(month + '-01');
   const csv = () => {
-    const rows = [['#', 'Profile ID', 'Name', 'Gender', 'Diocese', 'Registered', 'Expiry', 'Payment', 'Status'], ...s.rows.map((r, i) => [i + 1, r.id, r.name, r.gender, r.diocese, fmt(r.regDate), fmt(r.expiryDate), r.paid ? '₹' + r.amount : '—', r.status])];
+    const list = s?.rows || [];
+    const rows = [['#', 'Profile ID', 'Name', 'Gender', 'Diocese', 'Registered', 'Expiry', 'Payment', 'Status'], ...list.map((r, i) => [i + 1, r.id, r.name, r.gender, r.diocese, fmt(r.regDate), fmt(r.expiryDate), r.paid ? '₹' + r.amount : '—', r.status])];
     const blob = new Blob([rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n')], { type: 'text/csv' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `FA-Matrimony-Report-${month}.csv`; a.click();
   };
-  const tot = s ? s.active + s.inactive + s.married + s.pending + s.onHold || 1 : 1;
-  const seg = s ? [['#a8123c', s.active], ['#8fb0e6', s.onHold], ['#cfc4c6', s.inactive], ['#e2405f', s.married], ['#f2c66d', s.pending]] : [];
+  const tot = s ? (s.active || 0) + (s.inactive || 0) + (s.married || 0) + (s.pending || 0) + (s.onHold || 0) || 1 : 1;
+  const seg = s ? [['#a8123c', s.active || 0], ['#8fb0e6', s.onHold || 0], ['#cfc4c6', s.inactive || 0], ['#e2405f', s.married || 0], ['#f2c66d', s.pending || 0]] : [];
   let acc = 0; const grad = seg.map(([c, n]) => { const a = acc; acc += (n / tot) * 100; return `${c} ${a}% ${acc}%`; }).join(', ');
 
   return (

@@ -24,7 +24,7 @@ export default function Members() {
   const act = async (m, a) => {
     try {
       if (a === 'approve') { await api.approveMember(m.id); toast(`${m.name} approved – valid for 6 months`); }
-      if (a === 'notify') { await api.notifyRenewal([m.id]); toast(`Renewal reminder sent to ${m.name}`); }
+      if (a === 'notify') { const r = await api.notifyRenewal([m.id]); toast(r?.message || `Renewal reminder email sent to ${m.name}`); }
       if (a === 'renew') { await api.renewMember(m.id); toast(`${m.name} renewed for 6 months`); }
       if (a === 'married') { if (!window.confirm(`Mark ${m.name} as married? The profile will be hidden and moved to “Married – Delete”.`)) return; await api.markMarried(m.id); toast(`${m.name} moved to Married – Delete`); }
       if (a === 'release_hold') { if (!window.confirm(`Release hold on ${m.name}'s account and reactivate profile now?`)) return; await api.releaseHold(m.id); toast(`Hold released for ${m.name} – profile reactivated`); }

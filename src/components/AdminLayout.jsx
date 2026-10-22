@@ -10,6 +10,7 @@ const TITLES = [
   ['/admin/holds', 'Hold Requests', 'Members who asked to pause their account for a period'],
   ['/admin/married', 'Married – Delete Accounts', 'Members who reported their marriage – verify and delete'],
   ['/admin/reports', 'Monthly Reports', 'Active, inactive, on-hold, married and pending members – month by month'],
+  ['/admin/moderation', 'Reports & Blocks', 'Reported users with reasons, flagged messages, and platform block list'],
   ['/admin/enquiries', 'Enquiries', 'Messages from the Contact page and success-story submissions'],
   ['/admin/stories', 'Success Stories', 'Manage published couple stories and testimonials directly in database'],
   ['/admin', 'Dashboard', new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + ' • Overview']
@@ -32,6 +33,7 @@ export default function AdminLayout() {
     ['/admin/holds', 'fa-solid fa-circle-pause', 'Hold Requests', sum?.holdRequests],
     ['/admin/married', 'fa-solid fa-ring', 'Married – Delete', sum?.marriedToDelete],
     ['/admin/reports', 'fa-solid fa-chart-column', 'Monthly Reports'],
+    ['/admin/moderation', 'fa-solid fa-shield-halved', 'Reports & Blocks', sum?.reports],
     ['/admin/enquiries', 'fa-regular fa-envelope', 'Enquiries', sum?.openEnquiries],
     ['/admin/stories', 'fa-solid fa-heart', 'Success Stories', sum?.totalStories]
   ];

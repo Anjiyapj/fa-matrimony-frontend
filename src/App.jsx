@@ -14,6 +14,7 @@ import Login from './pages/public/Login';
 import Register from './pages/public/Register';
 import NotFound from './pages/public/NotFound';
 import MyProfile from './pages/member/MyProfile';
+import Renewal from './pages/member/Renewal';
 import Search from './pages/member/Search';
 import Match from './pages/member/Match';
 import ProfileView from './pages/member/ProfileView';
@@ -27,6 +28,7 @@ import Married from './pages/admin/Married';
 import Reports from './pages/admin/Reports';
 import Enquiries from './pages/admin/Enquiries';
 import AdminStories from './pages/admin/Stories';
+import Moderation from './pages/admin/Moderation';
 
 function ScrollTop() {
   const { pathname } = useLocation();
@@ -50,7 +52,8 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           {/* member area */}
-          <Route path="/my-profile" element={<RequireMember allowHold><MyProfile /></RequireMember>} />
+          <Route path="/my-profile" element={<RequireMember allowHold allowExpired><MyProfile /></RequireMember>} />
+          <Route path="/renewal" element={<RequireMember allowHold allowExpired><Renewal /></RequireMember>} />
           <Route path="/search" element={<RequireMember><Search /></RequireMember>} />
           <Route path="/match" element={<RequireMember><Match /></RequireMember>} />
           <Route path="/profile/:id" element={<RequireMember><ProfileView /></RequireMember>} />
@@ -67,6 +70,7 @@ export default function App() {
           <Route path="holds" element={<Holds />} />
           <Route path="married" element={<Married />} />
           <Route path="reports" element={<Reports />} />
+          <Route path="moderation" element={<Moderation />} />
           <Route path="enquiries" element={<Enquiries />} />
           <Route path="stories" element={<AdminStories />} />
           <Route path="*" element={<Navigate to="/admin" replace />} />

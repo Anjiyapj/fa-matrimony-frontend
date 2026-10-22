@@ -42,13 +42,17 @@ function multipart(fields, files = {}) {
 export const httpApi = {
   setToken(t) { token = t; },
 
-  // auth
+  // auth & password reset
   login: (b) => post('/auth/login', b),
   me: () => get('/auth/me'),
   logout: () => post('/auth/logout'),
+  sendPasswordResetOtp: (email) => post('/auth/forgot-password/send-otp', { email }),
+  verifyPasswordResetOtp: (email, otp) => post('/auth/forgot-password/verify-otp', { email, otp }),
+  resetPasswordWithOtp: (email, otp, newPassword) => post('/auth/forgot-password/reset', { email, otp, newPassword }),
 
   // public
   getLookups: () => get('/lookups'),
+  getDioceses: () => get('/dioceses'),
   getPublicStats: () => get('/stats/public'),
   getArticles: () => get('/articles'),
   getArticle: (id) => get(`/articles/${id}`),
@@ -73,6 +77,7 @@ export const httpApi = {
   getMyProfile: () => get('/me/profile'),
   getSummary: () => get('/me/summary'),
   markNotificationsRead: () => post('/me/notifications/read'),
+  renew: (data) => post('/me/renew', data),
   requestHold: (b) => post('/me/hold', b),
   cancelHoldRequest: () => del('/me/hold'),
   resumeFromHold: () => post('/me/hold/resume'),
@@ -83,6 +88,10 @@ export const httpApi = {
   getProfile: (id) => get(`/profiles/${id}`),
   decide: (id, type) => post(`/profiles/${id}/decision`, { type }),
   reportProfile: (id, reason) => post(`/profiles/${id}/report`, { reason }),
+  blockMember: (id, reason) => post(`/me/block/${id}`, { reason }),
+  unblockMember: (id) => post(`/me/unblock/${id}`),
+  getBlockedMembers: () => get('/me/blocked'),
+  reportMessage: (id, messageId, reason) => post(`/me/messages/${id}/report`, { messageId, reason }),
   getMatches: () => get('/me/matches'),
   getLikedMe: () => get('/me/liked-me'),
   getThread: (id) => get(`/me/messages/${id}`),
@@ -116,5 +125,10 @@ export const httpApi = {
   createAdminStory: (b) => post('/admin/stories', b),
   updateAdminStory: (id, b) => patch(`/admin/stories/${id}`, b),
   deleteAdminStory: (id) => del(`/admin/stories/${id}`),
+  listUserReports: (status) => get('/admin/user-reports', status ? { status } : undefined),
+  updateReportStatus: (id, status) => patch(`/admin/user-reports/${id}`, { status }),
+  deleteReport: (id) => del(`/admin/user-reports/${id}`),
+  listBlocks: () => get('/admin/blocks'),
+  adminUnblock: (id) => del(`/admin/blocks/${id}`),
   resetDemo: () => Promise.reject(new ApiError('Reset is only available in mock mode.'))
 };

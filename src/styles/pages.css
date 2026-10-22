@@ -294,6 +294,11 @@
 .msg time{font-size:11.5px;color:var(--muted);align-self:flex-end;white-space:nowrap}
 .msg.me{align-self:flex-end;flex-direction:row-reverse}
 .msg.me .bubble{background:#fdf0ec;border:1px solid #f5dad7}
+.msg-flag-btn{background:none;border:none;cursor:pointer;opacity:0.3;font-size:11px;color:var(--wine);padding:2px 5px;transition:opacity 0.2s;border-radius:4px}
+.msg:hover .msg-flag-btn{opacity:0.9}
+.msg-flag-btn:hover{opacity:1;color:#b02a37}
+.flagged-badge{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:600;color:#c92a2a;background:#ffe3e3;border:1px solid #ffa8a8;border-radius:12px;padding:1px 8px;margin-top:3px;align-self:flex-start}
+.msg.me .flagged-badge{align-self:flex-end}
 .composer{display:flex;gap:12px;align-items:center;margin-top:10px}
 .composer .box{flex:1;display:flex;align-items:center;gap:14px;border:1.5px solid #f2c3ca;border-radius:30px;padding:0 18px;height:52px;background:#fff}
 .composer input{flex:1;border:0;outline:0;font-size:14px}

@@ -45,6 +45,48 @@ export default function Chat() {
   const matchedItem = matches.find((x) => x.member.id === cur) || matches[0];
   if (!matchedItem) return <main className="page">{hero}<Loading /></main>;
   const o = matchedItem.member;
+  const blockPartner = async () => {
+    if (!o) return;
+    if (window.confirm(`Block ${o.name}? You will no longer see each other anywhere on the platform.`)) {
+      try {
+        await api.blockMember(o.id);
+        toast(`${o.name} has been blocked.`, 4500);
+        await reloadMatches();
+        refreshSummary();
+        nav('/chat');
+      } catch (err) {
+        toast(err.message);
+      }
+    }
+  };
+
+  const reportPartner = async () => {
+    if (!o) return;
+    const r = window.prompt(`Reason for reporting ${o.name}:`);
+    if (r && r.trim()) {
+      try {
+        await api.reportProfile(o.id, r.trim());
+        toast('Member reported and flagged for review by the Family Apostolate office.', 4500);
+      } catch (err) {
+        toast(err.message);
+      }
+    }
+  };
+
+  const reportMsg = async (msg) => {
+    const r = window.prompt('Reason for reporting this message:');
+    if (!r || !r.trim()) return;
+    try {
+      await api.reportMessage(o.id, msg.id, r.trim());
+      setMsgs((list) =>
+        (list || []).map((m) => (m.id === msg.id ? { ...m, flagged: true, flagReason: r.trim() } : m))
+      );
+      toast('Message reported and flagged for safety review.', 4500);
+    } catch (err) {
+      toast(err.message);
+    }
+  };
+
   let lastDay = '';
   return (
     <main className="page">
@@ -73,7 +115,22 @@ export default function Chat() {
               return (
                 <div key={x.id} style={{ display: 'contents' }}>
                   {sep && <span className="day">{d === fmt(new Date()) ? 'Today' : d}</span>}
-                  <div className={'msg' + (mine ? ' me' : '')}><img src={(mine ? user : o).photos?.[0] || '/img/logo.png'} alt="" /><div className="bubble">{x.text}</div><time>{fmtTime(x.at)}{mine && <> <i className="fa-solid fa-check-double" style={{ color: '#3b82c4' }} /></>}</time></div>
+                  <div className={'msg' + (mine ? ' me' : '')}>
+                    <img src={(mine ? user : o).photos?.[0] || '/img/logo.png'} alt="" />
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <div className="bubble">{x.text}</div>
+                      {x.flagged && <span className="flagged-badge"><i className="fa-solid fa-flag" /> Flagged</span>}
+                    </div>
+                    <time>
+                      {fmtTime(x.at)}
+                      {mine && <> <i className="fa-solid fa-check-double" style={{ color: '#3b82c4' }} /></>}
+                      {!mine && !x.flagged && (
+                        <button type="button" className="msg-flag-btn" title="Report & flag this message" onClick={() => reportMsg(x)}>
+                          <i className="fa-regular fa-flag" />
+                        </button>
+                      )}
+                    </time>
+                  </div>
                 </div>
               );
             })}
@@ -89,6 +146,8 @@ export default function Chat() {
             <Link to={`/profile/${o.id}`}><i className="fa-solid fa-user" />View {firstName(o)}'s Profile<i className="fa-solid fa-chevron-right" /></Link>
             <a href="#call" onClick={(e) => { e.preventDefault(); toast(o.contact ? `📞 ${o.contact.mobile} – please involve your families when you call.` : 'Contact not available', 5000); }}><i className="fa-solid fa-phone" />Request a Call<i className="fa-solid fa-chevron-right" /></a>
             <Link to="/magazine/AR6"><i className="fa-solid fa-shield-heart" />Safety Guidelines<i className="fa-solid fa-chevron-right" /></Link>
+            <a href="#report" onClick={(e) => { e.preventDefault(); reportPartner(); }}><i className="fa-solid fa-flag" />Report Member<i className="fa-solid fa-chevron-right" /></a>
+            <a href="#block" onClick={(e) => { e.preventDefault(); blockPartner(); }}><i className="fa-solid fa-ban" />Block Member<i className="fa-solid fa-chevron-right" /></a>
           </div></div>
           <div className="card verse-card"><i className="fa-solid fa-cross" /><q>“Be completely humble and gentle; be patient, bearing with one another in love.”</q><small>– EPHESIANS 4:2</small></div>
         </aside>

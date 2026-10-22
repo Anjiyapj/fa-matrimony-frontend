@@ -28,16 +28,38 @@ export default function MyProfile() {
   if (error) return <main className="page">{hero}<div className="container"><ErrorBox error={error} /></div></main>;
 
   const onHold = m.status === 'on_hold';
+  const isExpired = m.status === 'expired' || (m.daysLeft !== null && m.daysLeft < 0);
+  const isExpiring = !isExpired && (m.status === 'expiring' || (m.daysLeft !== null && m.daysLeft <= 15));
+
   return (
     <main className="page">
       {hero}
       <div className="container pd-layout">
         <aside className="card pd-left">
-          <Gallery member={m} badge={onHold ? 'On Hold' : 'Verified'} />
-          {onHold
-            ? <Notice type="" icon="fa-solid fa-circle-pause" style={{ marginTop: 12, background: '#eef3fd', borderColor: '#c9d7f3', color: '#22427d' }}>Account on hold until <b>{fmt(m.hold.until)}</b>. Your profile is hidden.</Notice>
-            : <Notice type="ok" icon="fa-solid fa-circle-check" style={{ marginTop: 12 }}>Subscription active till <b>{fmt(m.expiryDate)}</b> ({m.daysLeft} days left)</Notice>}
-          {!onHold && <>
+          <Gallery member={m} badge={onHold ? 'On Hold' : isExpired ? 'Expired' : 'Verified'} />
+          {onHold ? (
+            <Notice type="" icon="fa-solid fa-circle-pause" style={{ marginTop: 12, background: '#eef3fd', borderColor: '#c9d7f3', color: '#22427d' }}>Account on hold until <b>{fmt(m.hold.until)}</b>. Your profile is hidden.</Notice>
+          ) : isExpired ? (
+            <Notice type="err" icon="fa-solid fa-circle-exclamation" style={{ marginTop: 12 }}>
+              Subscription expired on <b>{fmt(m.expiryDate)}</b>
+            </Notice>
+          ) : isExpiring ? (
+            <Notice type="warn" icon="fa-regular fa-bell" style={{ marginTop: 12, background: '#fffbeb', borderColor: '#fef3c7', color: '#92400e' }}>
+              Subscription expires in <b>{m.daysLeft} days</b> ({fmt(m.expiryDate)})
+            </Notice>
+          ) : (
+            <Notice type="ok" icon="fa-solid fa-circle-check" style={{ marginTop: 12 }}>
+              Subscription active till <b>{fmt(m.expiryDate)}</b> ({m.daysLeft} days left)
+            </Notice>
+          )}
+
+          {(isExpired || isExpiring) && (
+            <Link to="/renewal" className="btn btn-primary" style={{ background: '#7c1431', fontWeight: 600 }}>
+              <i className="fa-solid fa-rotate" /> {isExpired ? 'Renew Plan Now (₹500)' : 'Renew Plan Early'}
+            </Link>
+          )}
+
+          {!onHold && !isExpired && <>
             <Link to="/match" className="btn btn-primary"><i className="fa-solid fa-heart" /> Find Matches</Link>
             <Link to="/chat" className="btn btn-outline"><i className="fa-regular fa-comments" /> My Messages ({m.stats.matches})</Link>
           </>}
@@ -46,6 +68,38 @@ export default function MyProfile() {
         </aside>
 
         <section className="pd-mid">
+          {isExpired && (
+            <div className="notice err" style={{ marginBottom: 16, padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+              <div>
+                <h4 style={{ margin: '0 0 4px', fontSize: 16, color: '#991b1b' }}>
+                  <i className="fa-solid fa-circle-exclamation" style={{ marginRight: 8 }} />
+                  Subscription Expired ({fmt(m.expiryDate)})
+                </h4>
+                <p style={{ margin: 0, fontSize: 13.5, color: '#b91c1c' }}>
+                  Your profile is currently hidden from search. Renew now to restore full messaging and discovery access.
+                </p>
+              </div>
+              <Link to="/renewal" className="btn btn-primary" style={{ padding: '8px 18px', fontSize: 14 }}>
+                <i className="fa-solid fa-rotate" /> Renew Plan (₹500)
+              </Link>
+            </div>
+          )}
+          {isExpiring && (
+            <div className="notice warn" style={{ marginBottom: 16, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, background: '#fffbeb', borderColor: '#fef3c7', color: '#92400e' }}>
+              <div>
+                <h4 style={{ margin: '0 0 4px', fontSize: 15, color: '#b45309' }}>
+                  <i className="fa-regular fa-bell" style={{ marginRight: 8 }} />
+                  Plan Expiring in {m.daysLeft} Day{m.daysLeft === 1 ? '' : 's'} ({fmt(m.expiryDate)})
+                </h4>
+                <p style={{ margin: 0, fontSize: 13, color: '#92400e' }}>
+                  Renew your membership today to prevent any interruption in contacting matches.
+                </p>
+              </div>
+              <Link to="/renewal" className="btn btn-outline" style={{ borderColor: '#d97706', color: '#92400e', padding: '6px 16px', fontSize: 13.5 }}>
+                <i className="fa-solid fa-rotate" /> Renew Now
+              </Link>
+            </div>
+          )}
           {onHold && (
             <div className="hold-banner">
               <i className="fa-solid fa-circle-pause big" />
@@ -139,7 +193,12 @@ function AccountPanel({ m, onChanged, onMarried }) {
           <hr style={{ border: 0, borderTop: '1px dashed var(--line)', margin: '18px 0' }} />
           <h4 style={{ fontSize: 17 }}><i className="fa-solid fa-id-card" />Membership</h4>
           <p style={{ marginBottom: 6 }}>Plan: 6 months – ₹ 500 • Valid till <b>{fmt(m.expiryDate)}</b>{m.status !== 'on_hold' && <> ({m.daysLeft} days left)</>}</p>
-          <p className="muted" style={{ fontSize: 12.5 }}>To renew or change your details, please <Link className="wine" to="/contact?subject=Renewal">contact the office</Link> – changes are re-verified.</p>
+          <div style={{ marginTop: 10, marginBottom: 8 }}>
+            <Link to="/renewal" className="btn btn-primary btn-sm">
+              <i className="fa-solid fa-rotate" /> Renew Subscription Online (₹500)
+            </Link>
+          </div>
+          <p className="muted" style={{ fontSize: 12.5 }}>To renew or change your details, you can renew online above or <Link className="wine" to="/contact?subject=Renewal">contact the office</Link>.</p>
         </div>
       </div>
       <MarriedModal open={marriedOpen} onClose={() => setMarriedOpen(false)} me={m} onDone={onMarried} />

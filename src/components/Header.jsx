@@ -31,6 +31,8 @@ export default function Header() {
   }, []);
   const bell = (summary?.unread || 0) + (summary?.likedMe || 0) + (summary?.notices || 0);
   const doLogout = async () => { await logout(); nav('/login'); };
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const isExpired = isMember && (user?.status === 'expired' || (user?.expiryDate && user.expiryDate < todayStr));
 
   return (
     <header className="site-header">
@@ -43,20 +45,31 @@ export default function Header() {
         <div className="header-actions">
           {isMember && (
             <>
-              <Link className="bell" to={summary?.unread ? '/chat' : '/my-profile'} title={`${bell} new`}><i className="fa-regular fa-bell" />{bell > 0 && <b>{bell}</b>}</Link>
+              {isExpired ? (
+                <Link className="btn btn-primary" to="/renewal" style={{ padding: '6px 14px', fontSize: 13, background: '#7c1431' }}>
+                  <i className="fa-solid fa-rotate" /> Renew Plan
+                </Link>
+              ) : (
+                <Link className="bell" to={summary?.unread ? '/chat' : '/my-profile'} title={`${bell} new`}><i className="fa-regular fa-bell" />{bell > 0 && <b>{bell}</b>}</Link>
+              )}
               <div className={'user-menu' + (menu ? ' open' : '')} ref={ref}>
                 <button className="user-chip" type="button" onClick={() => setMenu((v) => !v)}>
                   <img src={user.photos?.[0]} alt="" /><span>{user.name}</span><i className="fa-solid fa-chevron-down" style={{ fontSize: 11, marginLeft: 10 }} />
                 </button>
                 <div className="um-drop">
                   <Link to="/my-profile"><i className="fa-regular fa-user" />My Profile</Link>
-                  {user.status !== 'on_hold' && <>
+                  {isExpired && (
+                    <Link to="/renewal" style={{ color: '#7c1431', fontWeight: 600 }}>
+                      <i className="fa-solid fa-rotate" />Renew Plan (Expired)
+                    </Link>
+                  )}
+                  {!isExpired && user.status !== 'on_hold' && <>
                     <Link to="/match"><i className="fa-solid fa-heart" />Match</Link>
                     <Link to="/chat"><i className="fa-regular fa-comments" />Messages{summary?.unread > 0 && <b className="um-n">{summary.unread}</b>}</Link>
                     <Link to="/search"><i className="fa-solid fa-magnifying-glass" />Search</Link>
                   </>}
                   <Link to="/my-profile#account"><i className="fa-solid fa-gear" />Account &amp; Hold</Link>
-                  <div className="um-sub">{user.status === 'on_hold' ? `On hold till ${fmt(user.hold?.until)}` : `Subscription till ${fmt(user.expiryDate)}`}</div>
+                  <div className="um-sub">{isExpired ? `Plan expired on ${fmt(user.expiryDate)}` : user.status === 'on_hold' ? `On hold till ${fmt(user.hold?.until)}` : `Subscription till ${fmt(user.expiryDate)}`}</div>
                   <a href="#logout" onClick={(e) => { e.preventDefault(); doLogout(); }}><i className="fa-solid fa-right-from-bracket" />Logout</a>
                 </div>
               </div>

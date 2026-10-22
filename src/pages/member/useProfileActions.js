@@ -18,8 +18,21 @@ export function useProfileActions(m, reload) {
       }
       if (act === 'msg') m.relation.mutual ? nav(`/chat/${m.id}`) : toast('Messaging opens after you both like each other ♥');
       if (act === 'contact') toast(m.contact ? `📞 ${m.contact.mobile} • ✉ ${m.contact.email}` : 'Contact details unlock after a mutual match', 5000);
-      if (act === 'report') { const r = window.prompt('Reason for reporting this profile:'); if (r) { await api.reportProfile(m.id, r); toast('Report sent to the Family Apostolate office'); } }
-      if (act === 'block' && window.confirm(`Block ${m.name}? You will no longer see each other.`)) { await api.decide(m.id, 'block'); nav('/search'); }
+      if (act === 'report') {
+        const r = window.prompt(`Reason for reporting ${firstName(m)}'s profile:`);
+        if (r && r.trim()) {
+          await api.reportProfile(m.id, r.trim());
+          toast('Profile reported and flagged for review by the Family Apostolate office.', 4500);
+        }
+      }
+      if (act === 'block') {
+        if (window.confirm(`Block ${m.name}? You will no longer see each other anywhere on the platform.`)) {
+          await api.blockMember(m.id);
+          toast(`${firstName(m)} has been blocked. You will no longer see each other.`, 4500);
+          refreshSummary();
+          nav('/search', { replace: true });
+        }
+      }
     } catch (e) { toast(e.message); }
   };
 }

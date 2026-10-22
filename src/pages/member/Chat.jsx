@@ -13,7 +13,7 @@ export default function Chat() {
   const nav = useNavigate();
   const toast = useToast();
   const { user, refreshSummary } = useAuth();
-  const { data: matches, loading, reload: reloadMatches } = useAsync(() => api.getMatches(), []);
+  const { data: matches, loading, error, reload: reloadMatches } = useAsync(() => api.getMatches(), []);
   const { data: liked } = useAsync(() => api.getLikedMe(), []);
   const cur = id && matches?.some((x) => x.member.id === id) ? id : matches?.[0]?.member.id;
   const { data: msgs, setData: setMsgs, reload: reloadThread } = useAsync(() => (cur ? api.getThread(cur) : Promise.resolve([])), [cur]);
@@ -32,12 +32,19 @@ export default function Chat() {
   };
   const hero = <PageHero crumbs={[['Home', '/'], ['Matched Chat']]} title="Matched Chat" sub="Meaningful conversations for a faith-filled tomorrow." verse="Where two hearts seek God together, beautiful things begin." verseRef="ST. JOHN PAUL II" />;
   if (loading && !matches) return <main className="page">{hero}<Loading /></main>;
-  if (!matches.length) return (
+  if (error) return (
+    <main className="page">{hero}<div className="container" style={{ paddingBottom: 30 }}>
+      <Empty icon="fa-solid fa-triangle-exclamation" title="Could not load conversations">{error.message || 'Please check your connection and try again.'}</Empty>
+    </div></main>
+  );
+  if (!matches || !matches.length) return (
     <main className="page">{hero}<div className="container" style={{ paddingBottom: 30 }}>
       <Empty icon="fa-regular fa-comments" title="No matches yet">Messaging opens when you and another member both like each other.<br />
         {liked?.length ? <><b>{liked.length}</b> member{liked.length > 1 ? 's have' : ' has'} already liked you – <Link className="wine" to="/match">see them in Match</Link>.</> : <Link className="wine" to="/match">Start matching</Link>}</Empty></div></main>
   );
-  const o = matches.find((x) => x.member.id === cur).member;
+  const matchedItem = matches.find((x) => x.member.id === cur) || matches[0];
+  if (!matchedItem) return <main className="page">{hero}<Loading /></main>;
+  const o = matchedItem.member;
   let lastDay = '';
   return (
     <main className="page">
@@ -47,7 +54,7 @@ export default function Chat() {
           <div className="head"><h3 className="card-title"><i className="fa-regular fa-comments" />Conversations</h3><span className="muted" style={{ fontSize: 12.5 }}>{matches.length} match{matches.length > 1 ? 'es' : ''}</span></div>
           {matches.map(({ member: p, lastMessage: lm, unread }) => (
             <div key={p.id} className={'convo' + (p.id === cur ? ' active' : '')} onClick={() => nav(`/chat/${p.id}`)}>
-              <img src={p.photos[0]} alt="" />
+              <img src={p.photos?.[0] || '/img/logo.png'} alt="" />
               <div><b>{p.name}{p.id === cur && <> <i className="fa-solid fa-heart" style={{ color: 'var(--rose)', fontSize: 13 }} /></>}</b><p>{lm ? (lm.from === user.id ? 'You: ' : '') + lm.text : 'Say hello 👋'}</p></div>
               <time>{lm ? fmtShort(lm.at) : ''}</time>{unread > 0 && p.id !== cur && <span className="unread">{unread}</span>}<i className="fa-solid fa-chevron-right" />
             </div>
@@ -55,10 +62,10 @@ export default function Chat() {
         </aside>
         <section className="card thread">
           <div className="match-head">
-            <img src={o.photos[0]} alt="" /><div><h4>{o.name}</h4><small>{o.age} Years &nbsp;|&nbsp; {o.location.split(',')[0]}</small><small>Roman Catholic</small></div>
+            <img src={o.photos?.[0] || '/img/logo.png'} alt="" /><div><h4>{o.name}</h4><small>{o.age} Years &nbsp;|&nbsp; {o.location?.split(',')[0]}</small><small>Roman Catholic</small></div>
             <div className="mid"><i className="fa-solid fa-heart" style={{ color: 'var(--rose)', fontSize: 20 }} /><b>It's a Match!</b>You both liked each other.<br />May God guide this conversation<br />to something beautiful.</div>
             <div style={{ textAlign: 'right' }}><h4>{user.name}</h4><small>{user.age} Years &nbsp;|&nbsp; {user.location?.split(',')[0]}</small><small>Roman Catholic</small></div>
-            <img src={user.photos[0]} alt="" />
+            <img src={user.photos?.[0] || '/img/logo.png'} alt="" />
           </div>
           <div className="msgs" ref={box}>
             {!msgs ? <Loading /> : !msgs.length ? <span className="day">Say hello and introduce yourself 🙏</span> : msgs.map((x) => {
@@ -66,7 +73,7 @@ export default function Chat() {
               return (
                 <div key={x.id} style={{ display: 'contents' }}>
                   {sep && <span className="day">{d === fmt(new Date()) ? 'Today' : d}</span>}
-                  <div className={'msg' + (mine ? ' me' : '')}><img src={(mine ? user : o).photos[0]} alt="" /><div className="bubble">{x.text}</div><time>{fmtTime(x.at)}{mine && <> <i className="fa-solid fa-check-double" style={{ color: '#3b82c4' }} /></>}</time></div>
+                  <div className={'msg' + (mine ? ' me' : '')}><img src={(mine ? user : o).photos?.[0] || '/img/logo.png'} alt="" /><div className="bubble">{x.text}</div><time>{fmtTime(x.at)}{mine && <> <i className="fa-solid fa-check-double" style={{ color: '#3b82c4' }} /></>}</time></div>
                 </div>
               );
             })}

@@ -33,7 +33,7 @@ export const uniquePhotos = (m) => [...new Set(m?.photos || [])];
 
 /* Effective member status – the backend returns this as `status` (see API.md). */
 export const STATUS_LABEL = {
-  pending: 'Pending', active: 'Active', expiring: 'Expiring Soon', expired: 'Expired',
+  pending: 'Pending', active: 'Active', expiring: 'Expiring', expired: 'Expired',
   on_hold: 'On Hold', married: 'Married', rejected: 'Rejected'
 };
 

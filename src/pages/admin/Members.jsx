@@ -27,6 +27,7 @@ export default function Members() {
       if (a === 'notify') { await api.notifyRenewal([m.id]); toast(`Renewal reminder sent to ${m.name}`); }
       if (a === 'renew') { await api.renewMember(m.id); toast(`${m.name} renewed for 6 months`); }
       if (a === 'married') { if (!window.confirm(`Mark ${m.name} as married? The profile will be hidden and moved to “Married – Delete”.`)) return; await api.markMarried(m.id); toast(`${m.name} moved to Married – Delete`); }
+      if (a === 'release_hold') { if (!window.confirm(`Release hold on ${m.name}'s account and reactivate profile now?`)) return; await api.releaseHold(m.id); toast(`Hold released for ${m.name} – profile reactivated`); }
       if (a === 'delete') { if (!window.confirm(`Delete ${m.name} (${m.id}) permanently? Likes and messages are removed too.`)) return; await api.deleteMember(m.id); toast('Account deleted'); }
       reload(); adminChanged();
     } catch (e) { toast(e.message, 4000); }
@@ -51,27 +52,31 @@ export default function Members() {
             <table className="tbl">
               <thead><tr><th>Member</th><th className="sortable" onClick={() => setSort(sort === 'new' ? 'old' : 'new')}>Registered On<i className={sort === 'new' ? 'fa-solid fa-arrow-down-wide-short' : 'fa-solid fa-arrow-up-short-wide'} /></th><th>Diocese</th><th>Payment</th><th>Subscription Ends</th><th>Status</th><th>Actions</th></tr></thead>
               <tbody>
-                {shown.map((m) => {
-                  const s = m.status;
-                  return (
-                    <tr key={m.id}>
-                      <td><div className="who"><img src={m.photos[0]} alt="" /><div><b>{m.name}</b><small>{m.id} • {m.gender}, {m.age}</small></div></div></td>
-                      <td>{fmt(m.regDate)}</td><td>{m.diocese}</td>
-                      <td>{m.payment?.paid ? <span className="p-paid"><i className="fa-solid fa-circle-check" /> ₹{m.payment.amount} · {m.payment.mode}</span> : <span className="p-unpaid"><i className="fa-solid fa-circle-xmark" /> Unpaid</span>}</td>
-                      <td>{fmt(m.expiryDate)}{m.daysLeft !== null && !['married', 'rejected'].includes(s) && <><br /><small className="muted">{s === 'on_hold' ? `on hold till ${fmt(m.hold.until)}` : m.daysLeft < 0 ? `${-m.daysLeft} days ago` : `${m.daysLeft} days left`}</small></>}</td>
-                      <td><Pill status={s} />{m.hold?.status === 'requested' && <><br /><small className="wine" style={{ fontSize: 11.5 }}>Hold requested</small></>}</td>
-                      <td><div className="row-acts">
-                        <Link className="ibtn" title="View / Verify" to={`/admin/verify/${m.id}`}><i className="fa-regular fa-eye" /></Link>
-                        {s === 'pending' && <button className="ibtn ok" title="Approve" onClick={() => act(m, 'approve')}><i className="fa-solid fa-check" /></button>}
-                        {['expiring', 'expired'].includes(s) && <button className="ibtn" title="Send renewal reminder" onClick={() => act(m, 'notify')}><i className="fa-regular fa-bell" /></button>}
-                        {s === 'expired' && <button className="ibtn ok" title="Renew 6 months (payment received)" onClick={() => act(m, 'renew')}><i className="fa-solid fa-rotate" /></button>}
-                        {['active', 'expiring', 'on_hold'].includes(s) && <button className="ibtn" title="Mark as married" onClick={() => act(m, 'married')}><i className="fa-solid fa-ring" /></button>}
-                        {['expired', 'married', 'rejected'].includes(s) && <button className="ibtn del" title="Delete account" onClick={() => act(m, 'delete')}><i className="fa-regular fa-trash-can" /></button>}
-                      </div></td>
-                    </tr>
-                  );
-                })}
-                {!shown.length && <tr><td colSpan="7" style={{ textAlign: 'center', padding: 30 }} className="muted">No registrations match this filter.</td></tr>}
+                {shown.length === 0 ? (
+                  <tr><td colSpan={7} className="muted" style={{ textAlign: 'center', padding: '24px' }}>No registrations found.</td></tr>
+                ) : (
+                  shown.map((m) => {
+                    const s = m.effectiveStatus || m.status;
+                    return (
+                      <tr key={m.id}>
+                        <td><div className="who"><img src={m.photos?.[0] || '/img/logo.png'} alt="" /><div><b>{m.name}</b><small>{m.id} • {m.gender}, {m.age}</small></div></div></td>
+                        <td>{fmt(m.regDate)}</td><td>{m.diocese}</td>
+                        <td>{m.payment?.paid ? <span className="p-paid"><i className="fa-solid fa-circle-check" /> ₹{m.payment.amount} · {m.payment.mode}</span> : <span className="p-unpaid"><i className="fa-solid fa-circle-xmark" /> Unpaid</span>}</td>
+                        <td>{fmt(m.expiryDate)}{m.daysLeft !== null && m.daysLeft !== undefined && !['married', 'rejected'].includes(s) && <><br /><small className="muted">{s === 'on_hold' ? `on hold till ${fmt(m.hold?.until)}` : m.daysLeft < 0 ? `${-m.daysLeft} days ago` : `${m.daysLeft} days left`}</small></>}</td>
+                        <td><Pill status={s} />{m.hold?.status === 'requested' && <><br /><small className="wine" style={{ fontSize: 11.5 }}>Hold requested</small></>}</td>
+                        <td><div className="row-acts">
+                          <Link className="ibtn" title="View / Verify" to={`/admin/verify/${m.id}`}><i className="fa-regular fa-eye" /></Link>
+                          {s === 'pending' && <button className="ibtn ok" title="Approve" onClick={() => act(m, 'approve')}><i className="fa-solid fa-check" /></button>}
+                          {s === 'on_hold' && <button className="ibtn ok" title="Release hold (reactivate profile)" onClick={() => act(m, 'release_hold')}><i className="fa-solid fa-play" /></button>}
+                          {['expiring', 'expired'].includes(s) && <button className="ibtn" title="Send renewal reminder" onClick={() => act(m, 'notify')}><i className="fa-regular fa-bell" /></button>}
+                          {s === 'expired' && <button className="ibtn ok" title="Renew 6 months (payment received)" onClick={() => act(m, 'renew')}><i className="fa-solid fa-rotate" /></button>}
+                          {['active', 'expiring', 'on_hold'].includes(s) && <button className="ibtn" title="Mark as married" onClick={() => act(m, 'married')}><i className="fa-solid fa-ring" /></button>}
+                          {['expired', 'married', 'rejected'].includes(s) && <button className="ibtn del" title="Delete account" onClick={() => act(m, 'delete')}><i className="fa-regular fa-trash-can" /></button>}
+                        </div></td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>

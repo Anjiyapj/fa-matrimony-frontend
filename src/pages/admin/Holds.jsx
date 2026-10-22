@@ -28,9 +28,9 @@ export default function Holds() {
         const h = m.hold, mo = months[m.id] ?? h.months;
         return (
           <div key={m.id} className="q-card">
-            <img src={m.photos[0]} alt="" />
+            <img src={m.photos?.[0] || '/img/logo.png'} alt="" />
             <div>
-              <h4><Link to={`/admin/verify/${m.id}`}>{m.name}</Link> <Pill status={m.status} /></h4>
+              <h4><Link to={`/admin/verify/${m.id}`}>{m.name}</Link> <Pill status={m.effectiveStatus || m.status || 'on_hold'} /></h4>
               <div className="meta">{m.id} • {m.gender}, {m.age} • {m.diocese} • {m.mobile}</div>
               <div className="kv-mini">
                 <span>Requested: <b>{h.months} month{h.months > 1 ? 's' : ''}</b></span>
@@ -50,7 +50,7 @@ export default function Holds() {
                 <button className="btn btn-primary btn-sm" onClick={() => run(() => api.decideHold(m.id, { approve: true, months: mo, note: notes[m.id] }), `Hold approved for ${m.name}`)}><i className="fa-solid fa-check" /> Approve Hold</button>
                 <button className="btn btn-outline btn-sm" onClick={() => run(() => api.decideHold(m.id, { approve: false, note: (notes[m.id] || '').trim() }), 'Hold request rejected')}><i className="fa-solid fa-xmark" /> Reject</button>
               </>)}
-              {m.status === 'on_hold' && <button className="btn btn-outline btn-sm" onClick={() => window.confirm(`Release ${m.name}'s hold now?`) && run(() => api.releaseHold(m.id), 'Hold released')}><i className="fa-solid fa-play" /> Release Hold</button>}
+              {(m.status === 'on_hold' || h.status === 'active') && <button className="btn btn-outline btn-sm" onClick={() => window.confirm(`Release ${m.name}'s hold now?`) && run(() => api.releaseHold(m.id), 'Hold released')}><i className="fa-solid fa-play" /> Release Hold</button>}
               <Link className="btn btn-ghost btn-sm" to={`/admin/verify/${m.id}`}><i className="fa-regular fa-eye" /> Open Profile</Link>
             </div>
           </div>

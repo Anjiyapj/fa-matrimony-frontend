@@ -77,12 +77,12 @@ export default function Match() {
         </aside>
 
         <section className="swipe-zone">
-          {error ? <ErrorBox error={error} /> : loading && !deck.length ? <Loading /> : !m ? (
+          {error ? <ErrorBox error={error} /> : loading && !deck?.length ? <Loading /> : !m ? (
             <Empty icon="fa-regular fa-heart" title="You're all caught up">No more profiles match these preferences right now.<br />Try “Any” in the filters, or visit your <Link className="wine" to="/chat">matches</Link>.</Empty>
           ) : (<>
             <div className="card swipe-card" style={{ transform, opacity: anim ? 0 : 1, transition: drag && !anim ? 'none' : undefined }} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerLeave={onUp}>
-              <div className="photo-main"><img src={photos[ph]} alt="" draggable="false" />
-                <span className="counter">{idx + 1} / {deck.length}</span>
+              <div className="photo-main"><img src={photos[ph] || '/img/logo.png'} alt="" draggable="false" />
+                <span className="counter">{idx + 1} / {deck?.length || 1}</span>
                 <div className="dots">{photos.map((_, k) => <b key={k} className={k === ph ? 'on' : ''} />)}</div>
                 {photos.length > 1 && <>
                   <button className="photo-nav prev" aria-label="Previous" onClick={() => setPh((ph - 1 + photos.length) % photos.length)}><i className="fa-solid fa-chevron-left" /></button>

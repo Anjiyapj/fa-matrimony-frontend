@@ -60,9 +60,9 @@ export default function Home() {
             <div className="field"><label>Age</label><div className="age-pair">
               <select className="select" value={q.ageMin} onChange={set('ageMin')}><option value="">Min</option>{[21, 22, 23, 24, 25, 26, 27, 28, 30, 32].map((a) => <option key={a}>{a}</option>)}</select><span>–</span>
               <select className="select" value={q.ageMax} onChange={set('ageMax')}><option value="">Max</option>{[25, 27, 28, 30, 32, 35, 38, 40].map((a) => <option key={a}>{a}</option>)}</select></div></div>
-            <div className="field"><label>Education</label><select className="select" value={q.eduGroup} onChange={set('eduGroup')}><option value="">Select</option>{look?.eduGroups.map((x) => <option key={x}>{x}</option>)}</select></div>
-            <div className="field"><label>Job</label><select className="select" value={q.jobGroup} onChange={set('jobGroup')}><option value="">Select</option>{look?.jobGroups.map((x) => <option key={x}>{x}</option>)}</select></div>
-            <div className="field"><label>Diocese</label><select className="select" value={q.diocese} onChange={set('diocese')}><option value="">Select</option>{look?.dioceses.map((x) => <option key={x}>{x}</option>)}</select></div>
+            <div className="field"><label>Education</label><select className="select" value={q.eduGroup} onChange={set('eduGroup')}><option value="">Select</option>{look?.eduGroups?.map((x) => <option key={x}>{x}</option>)}</select></div>
+            <div className="field"><label>Job</label><select className="select" value={q.jobGroup} onChange={set('jobGroup')}><option value="">Select</option>{look?.jobGroups?.map((x) => <option key={x}>{x}</option>)}</select></div>
+            <div className="field"><label>Diocese</label><select className="select" value={q.diocese} onChange={set('diocese')}><option value="">Select</option>{look?.dioceses?.map((x) => <option key={x}>{x}</option>)}</select></div>
             <button className="btn btn-primary">Search</button>
           </div>
         </form>
@@ -76,11 +76,15 @@ export default function Home() {
             <Link className="btn btn-outline btn-pill btn-sm" to="/stories">View All Stories <i className="fa-solid fa-arrow-right" /></Link>
           </div>
           <div className="stories">
-            <button className="car-btn l" aria-label="Previous" onClick={() => setOff((off - 1 + stories.length) % stories.length)}><i className="fa-solid fa-chevron-left" /></button>
-            {shown.map((s) => (
-              <Link key={s.id} className="story" to={`/stories#${s.id}`}><img src={s.img} alt="" /><blockquote>{s.text}<cite>– {s.couple}</cite></blockquote></Link>
-            ))}
-            <button className="car-btn r" aria-label="Next" onClick={() => setOff((off + 1) % stories.length)}><i className="fa-solid fa-chevron-right" /></button>
+            {stories.length > 1 && <button className="car-btn l" aria-label="Previous" onClick={() => setOff((off - 1 + stories.length) % stories.length)}><i className="fa-solid fa-chevron-left" /></button>}
+            {shown.length > 0 ? (
+              shown.map((s) => (
+                <Link key={s.id} className="story" to={`/stories#${s.id}`}><img src={s.img} alt="" /><blockquote>{s.text}<cite>– {s.couple}</cite></blockquote></Link>
+              ))
+            ) : (
+              <div className="muted" style={{ padding: '24px', textAlign: 'center', width: '100%' }}>No published stories yet.</div>
+            )}
+            {stories.length > 1 && <button className="car-btn r" aria-label="Next" onClick={() => setOff((off + 1) % stories.length)}><i className="fa-solid fa-chevron-right" /></button>}
           </div>
         </div>
         <div>
@@ -90,7 +94,11 @@ export default function Home() {
             <Link className="btn btn-outline btn-pill btn-sm" to="/magazine">View All Articles <i className="fa-solid fa-arrow-right" /></Link>
           </div>
           <div className="mags">
-            {articles.slice(0, 3).map((a) => <Link key={a.id} className="mag" to={`/magazine/${a.id}`}><img src={a.img} alt="" /><h4>{a.title}</h4><time>{fmt(a.date)}</time></Link>)}
+            {articles.length > 0 ? (
+              articles.slice(0, 3).map((a) => <Link key={a.id} className="mag" to={`/magazine/${a.id}`}><img src={a.img} alt="" /><h4>{a.title}</h4><time>{fmt(a.date)}</time></Link>)
+            ) : (
+              <div className="muted" style={{ padding: '24px', textAlign: 'center' }}>No articles published yet.</div>
+            )}
           </div>
         </div>
       </section>

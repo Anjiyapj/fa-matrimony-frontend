@@ -62,13 +62,13 @@ export default function Search() {
             <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}><span className="muted" style={{ fontSize: 13 }}>Sort by</span>
               <select className="select" style={{ width: 180, height: 38 }} value={sort} onChange={(e) => setSort(e.target.value)}><option value="new">Newest first</option><option value="age">Age: low to high</option><option value="active">Recently active</option><option value="likedMe">Liked me first</option></select>
               <Link className="btn btn-primary btn-sm" to="/match"><i className="fa-solid fa-layer-group" /> Swipe Mode</Link></div></div>
-          {error ? <ErrorBox error={error} /> : loading && !rows ? <Loading /> : !rows.length ? <Empty title="No matching profiles">Try widening the age or height range, or choose “Any”.</Empty> : (
+          {error ? <ErrorBox error={error} /> : loading && !rows ? <Loading /> : !rows?.length ? <Empty title="No matching profiles">Try widening the age or height range, or choose “Any”.</Empty> : (
             <div className="results">
               {rows.map((m) => {
                 const r = m.relation;
                 return (
                   <article key={m.id} className="card r-card">
-                    <div className="img"><img src={m.photos[0]} alt={m.name} /><span className="badge badge-online">{r.mutual ? 'Matched' : r.likesMe ? 'Likes you' : 'Verified'}</span></div>
+                    <div className="img"><img src={m.photos?.[0] || '/img/logo.png'} alt={m.name} /><span className="badge badge-online">{r.mutual ? 'Matched' : r.likesMe ? 'Likes you' : 'Verified'}</span></div>
                     <div className="body"><h4>{m.name} <i className="fa-solid fa-shield-heart verified-ico" /></h4>
                       <ul><li><i className="fa-solid fa-cake-candles" />{m.age} yrs &nbsp;•&nbsp; {m.height} cm</li><li><i className="fa-solid fa-graduation-cap" />{m.eduGroup} &nbsp;•&nbsp; {m.jobGroup}</li><li><i className="fa-solid fa-church" />{m.diocese}</li><li><i className="fa-solid fa-location-dot" />{m.location}</li></ul>
                       <div className="acts"><Link className="btn btn-outline btn-sm" to={`/profile/${m.id}`}>View Profile</Link>

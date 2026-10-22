@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import api, { USE_MOCK } from '../api';
+import api from '../api';
 
 const TITLES = [
   ['/admin/members', 'Registrations', 'All members – sorted by registration date'],
@@ -35,10 +35,6 @@ export default function AdminLayout() {
     ['/admin/enquiries', 'fa-regular fa-envelope', 'Enquiries', sum?.openEnquiries],
     ['/admin/stories', 'fa-solid fa-heart', 'Success Stories', sum?.totalStories]
   ];
-  const reset = async () => {
-    if (!window.confirm('Reset all demo data back to the sample database?')) return;
-    await api.resetDemo(); toast('Demo data reset'); window.dispatchEvent(new Event('fa:admin-changed')); nav('/admin');
-  };
   return (
     <div className="admin">
       <div className="adm">
@@ -52,7 +48,6 @@ export default function AdminLayout() {
           ))}
           <div className="sec">QUICK LINKS</div>
           <a className="nav-i" href="/" target="_blank" rel="noreferrer"><i className="fa-solid fa-globe" />View Website</a>
-          {USE_MOCK && <a className="nav-i" href="#reset" onClick={(e) => { e.preventDefault(); reset(); }}><i className="fa-solid fa-rotate-left" />Reset Demo Data</a>}
           <a className="nav-i" href="#logout" onClick={async (e) => { e.preventDefault(); await logout(); nav('/login?role=admin'); }}><i className="fa-solid fa-right-from-bracket" />Logout</a>
           <div className="verse">“Unless the Lord builds the house, those who build it labour in vain.”<small>PSALM 127:1</small></div>
         </aside>

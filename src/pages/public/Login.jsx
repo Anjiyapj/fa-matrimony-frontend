@@ -1,10 +1,7 @@
-import { Fragment, useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { USE_MOCK } from '../../api';
 import { ErrorBox, Notice } from '../../components/ui';
-
-const DEMO = [['member', 'Member (groom)', 'joseph@demo.com', 'joseph123'], ['member', 'Member (bride)', 'aleena@demo.com', 'aleena123'], ['member', 'On-hold member', 'sanju@demo.com', 'sanju123'], ['member', 'Pending member', 'maria@demo.com', 'maria123'], ['admin', 'Admin', 'jcs@jecc.ac.in', '123456']];
 
 export default function Login() {
   const [sp] = useSearchParams();
@@ -53,14 +50,6 @@ export default function Login() {
           <div className="row"><label className="check" style={{ fontSize: 13.5 }}><input type="checkbox" defaultChecked /> Remember me</label><Link to="/contact?subject=Registration help" className="wine">Forgot password?</Link></div>
           <button className="btn btn-primary btn-block" style={{ height: 48 }} disabled={busy}><i className="fa-solid fa-right-to-bracket" /> {busy ? 'Logging in…' : 'Login'}</button>
           {role === 'member' && <p style={{ textAlign: 'center', marginTop: 18, fontSize: 14 }}>New to Family Apostolate Matrimony? <Link to="/register" className="wine" style={{ fontWeight: 600 }}>Register Now</Link></p>}
-          {USE_MOCK && (
-            <div className="demo-creds">
-              <b><i className="fa-solid fa-key" /> Demo logins</b> <span className="muted">(click to fill)</span>
-              <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '6px 12px', marginTop: 8 }}>
-                {DEMO.map(([r, label, u, p]) => <Fragment key={label}><span>{label}</span><span><code onClick={() => { pickRole(r); setU(u); setP(p); }}>{u} / {p}</code></span></Fragment>)}
-              </div>
-            </div>
-          )}
         </form>
       </div>
     </main>

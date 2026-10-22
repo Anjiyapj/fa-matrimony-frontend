@@ -36,11 +36,14 @@ export function Gallery({ member, badge = 'Verified' }) {
   const photos = uniquePhotos(member);
   const [i, setI] = useState(0);
   useEffect(() => setI(0), [member?.id]);
-  const go = (n) => setI((n + photos.length) % photos.length);
+  const go = (n) => {
+    if (!photos.length) return;
+    setI((n + photos.length) % photos.length);
+  };
   return (
     <div>
       <div className="photo-main">
-        <img src={photos[i]} alt={member.name} />
+        <img src={photos[i] || '/img/logo.png'} alt={member?.name || ''} />
         {badge && <span className="badge badge-online">{badge}</span>}
         {photos.length > 1 && <>
           <button className="photo-nav prev" aria-label="Previous photo" onClick={() => go(i - 1)}><i className="fa-solid fa-chevron-left" /></button>

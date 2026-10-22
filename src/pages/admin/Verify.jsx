@@ -55,7 +55,7 @@ export default function Verify() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
         <section className="panel">
           <div className="panel-h">
-            <div className="who"><img src={m.photos[0]} alt="" style={{ width: 64, height: 64 }} /><div><b style={{ fontFamily: 'var(--serif)', fontSize: 24, color: 'var(--wine)' }}>{m.name}</b><small>{m.id} • {m.gender}, {m.age} yrs • Registered {fmt(m.regDate)}</small></div></div>
+            <div className="who"><img src={m.photos?.[0] || '/img/logo.png'} alt="" style={{ width: 64, height: 64 }} /><div><b style={{ fontFamily: 'var(--serif)', fontSize: 24, color: 'var(--wine)' }}>{m.name}</b><small>{m.id} • {m.gender}, {m.age} yrs • Registered {fmt(m.regDate)}</small></div></div>
             <div className="tools"><Pill status={s} />
               <select className="select" value={m.id} onChange={(e) => nav(`/admin/verify/${e.target.value}`)} style={{ minWidth: 230 }}>
                 <optgroup label={`Pending (${pending.length})`}>{pending.map((x) => <option key={x.id} value={x.id}>{x.name} – {x.id}</option>)}</optgroup>
@@ -65,7 +65,7 @@ export default function Verify() {
           {s === 'married' && <Notice type="err" icon="fa-solid fa-ring" style={{ marginBottom: 14 }}>This member reported marriage on {fmt(mar?.reportedAt)}. Verify and delete the account – see the Marriage panel.</Notice>}
           <div className="section-band">Uploaded Photos <small className="muted" style={{ fontWeight: 400 }}>(minimum 3 required – tick each after checking)</small></div>
           <div className="v-photos">
-            {m.photos.slice(0, 3).map((ph, i) => <div key={i} className="v-photo"><img src={ph} alt="" /><span>{LABELS[i]}</span>{chk('p' + i, true)}</div>)}
+            {(m.photos || []).slice(0, 3).map((ph, i) => <div key={i} className="v-photo"><img src={ph} alt="" /><span>{LABELS[i]}</span>{chk('p' + i, true)}</div>)}
           </div>
           <label className="btn btn-outline btn-sm" style={{ marginTop: 12 }}><i className="fa-solid fa-upload" /> Replace “other angle” photo (admin)
             <input type="file" accept="image/*" hidden onChange={(e) => e.target.files[0] && run(() => api.replacePhoto(m.id, 2, e.target.files[0]), 'Photo replaced by admin')} /></label>
